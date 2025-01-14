@@ -10,7 +10,8 @@ COPY ./requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 
-COPY ./ /code
+COPY ./app /code/app
+COPY ./model_artifacts /code/model_artifacts
 
 
-CMD ["fastapi", "run", "main.py", "--proxy-headers", "--port", "80"]
+CMD ["fastapi", "run", "app/main.py", "--proxy-headers", "--port", "80"]
