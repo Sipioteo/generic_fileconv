@@ -1,25 +1,17 @@
-FROM python:3.9-alpine
+FROM python:3.9
+
 
 WORKDIR /code
 
-# Installa dipendenze di build temporanee
-RUN apk add --no-cache --virtual .build-deps \
-    gcc musl-dev libffi-dev openssl-dev
 
-COPY requirements.txt /code
+COPY ./requirements.txt /code/requirements.txt
 
-# Aggiorna pip e installa i pacchetti
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir --upgrade -r requirements.txt
 
-# Copia il codice
-COPY app app
-COPY model_artifacts model_artifacts
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-# Rimuove i pacchetti di build per ridurre le dimensioni finali
-RUN apk del .build-deps
 
-EXPOSE 80
+COPY ./app /code/app
+COPY ./model_artifacts /code/model_artifacts
 
-# Esempio di comando per avviare FastAPI con uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+
+CMD ["fastapi", "run", "app/main.py", "--proxy-headers", "--port", "80"]
