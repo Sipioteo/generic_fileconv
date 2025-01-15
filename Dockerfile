@@ -1,17 +1,14 @@
-FROM python:3.9
-
+FROM python:3.9-alpine
 
 WORKDIR /code
 
+# Install build dependencies if needed (gcc, musl-dev, etc.)
+RUN apk add --no-cache gcc musl-dev
 
-COPY ./requirements.txt /code/requirements.txt
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-
-
-COPY ./app /code/app
-COPY ./model_artifacts /code/model_artifacts
-
+COPY ./app ./app
+COPY ./model_artifacts ./model_artifacts
 
 CMD ["fastapi", "run", "app/main.py", "--proxy-headers", "--port", "80"]
