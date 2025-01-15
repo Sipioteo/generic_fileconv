@@ -11,15 +11,6 @@ from docling_core.types.io import DocumentStream
 from fastapi import FastAPI, File, UploadFile, Form
 
 
-artifacts_path =  StandardPdfPipeline.download_models_hf(
-    local_dir = os.path.join(os.getcwd(), "model_artifacts"),
-)
-print(artifacts_path)
-converter = DocumentConverter(
-    format_options={
-        InputFormat.PDF: PdfFormatOption(pipeline_options=PdfPipelineOptions(artifacts_path=artifacts_path))
-    }
-)
 
 app = FastAPI()
 #receive multipart form data
@@ -30,6 +21,16 @@ async def convert(
 ):
     if token != os.environ.get("API_TOKEN") and token != "e3bb63cf-8cb3-4c77-9b88-8373a3cc4eba":
         return {"error": "Invalid token"}
+
+    artifacts_path = StandardPdfPipeline.download_models_hf(
+        local_dir=os.path.join(os.getcwd(), "model_artifacts"),
+    )
+    print(artifacts_path)
+    converter = DocumentConverter(
+        format_options={
+            InputFormat.PDF: PdfFormatOption(pipeline_options=PdfPipelineOptions(artifacts_path=artifacts_path))
+        }
+    )
 
     buf = BytesIO(file.file.read())
     source = DocumentStream(name=file.filename, stream=buf)
@@ -43,3 +44,17 @@ async def convert(
     return {"result": resultData}
 
 
+
+@app.get("/init")
+async def convert():
+    artifacts_path = StandardPdfPipeline.download_models_hf(
+        local_dir=os.path.join(os.getcwd(), "model_artifacts"),
+    )
+    print(artifacts_path)
+    converter = DocumentConverter(
+        format_options={
+            InputFormat.PDF: PdfFormatOption(pipeline_options=PdfPipelineOptions(artifacts_path=artifacts_path))
+        }
+    )
+
+    return {"status": "initialized"}
